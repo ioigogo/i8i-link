@@ -15,7 +15,7 @@
     throw new Error("key 없음");
   }
 
-  fetch('../latest_id.json?cachebuster=' + Date.now()) // ✅ 캐시 방지!
+ fetch('https://raw.githubusercontent.com/ioigogo/i8i-link/main/latest_id.json?nocache=' + Date.now()) // ✅ 캐시 방지!
     .then(response => response.json())
     .then(data => {
       const correctKey = data.key;
