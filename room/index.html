@@ -7,41 +7,39 @@
 <body>
   <h2>방에 입장하는 중입니다...</h2>
   <script>
-    // URL에서 key 값을 가져오기
-    const urlParams = new URLSearchParams(window.location.search);
-    const keyFromUrl = urlParams.get('key');
+  const urlParams = new URLSearchParams(window.location.search);
+  const keyFromUrl = urlParams.get('key');
 
-    if (!keyFromUrl) {
-      document.body.innerHTML = '<h2>🚫 유효하지 않은 접근입니다. (key 없음)</h2>';
-      throw new Error("key 없음");
-    }
+  if (!keyFromUrl) {
+    document.body.innerHTML = '<h2>🚫 유효하지 않은 접근입니다. (key 없음)</h2>';
+    throw new Error("key 없음");
+  }
 
-    // latest_id.json 불러오기
-    fetch('../latest_id.json') // ← 경로 주의!
-      .then(response => response.json())
-      .then(data => {
-        const correctKey = data.key;
-        const expiresAt = new Date(data.expiresAt);
-        const now = new Date();
-        const roomId = data.id;
+  fetch('../latest_id.json?cachebuster=' + Date.now()) // ✅ 캐시 방지!
+    .then(response => response.json())
+    .then(data => {
+      const correctKey = data.key;
+      const expiresAt = new Date(data.expiresAt);
+      const now = new Date();
+      const roomId = data.id;
 
-        if (keyFromUrl !== correctKey) {
-          document.body.innerHTML = '<h2>🚫 초대 키가 일치하지 않습니다.</h2>';
-          return;
-        }
+      if (keyFromUrl !== correctKey) {
+        document.body.innerHTML = '<h2>🚫 초대 키가 일치하지 않습니다.</h2>';
+        return;
+      }
 
-        if (now > expiresAt) {
-          document.body.innerHTML = '<h2>⏰ 초대 링크가 만료되었습니다.</h2>';
-          return;
-        }
+      if (now > expiresAt) {
+        document.body.innerHTML = '<h2>⏰ 초대 링크가 만료되었습니다.</h2>';
+        return;
+      }
 
-        // ✅ 모든 조건 충족 시 gotaik 딥링크로 이동
-        window.location.href = `gotaik://chatroom?id=${roomId}`;
-      })
-      .catch(error => {
-        console.error('🚨 JSON 로드 오류:', error);
-        document.body.innerHTML = '<h2>⚠️ 데이터를 불러오지 못했습니다.</h2>';
-      });
-  </script>
+      window.location.href = `gotaik://chatroom?id=${roomId}`;
+    })
+    .catch(error => {
+      console.error('🚨 JSON 로드 오류:', error);
+      document.body.innerHTML = '<h2>⚠️ 데이터를 불러오지 못했습니다.</h2>';
+    });
+</script>
+
 </body>
 </html>
